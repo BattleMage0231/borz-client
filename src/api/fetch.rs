@@ -1,4 +1,4 @@
-use url::{Url, ParseError};
+use url::{ParseError, Url};
 
 pub struct APIFetcher {
     path: Url,
@@ -7,9 +7,6 @@ pub struct APIFetcher {
 
 impl APIFetcher {
     pub fn new(path: Url, name: String) -> APIFetcher {
-        APIFetcher {
-            path,
-            name,
-        }
-    } 
+        APIFetcher { path, name }
+    }
 }

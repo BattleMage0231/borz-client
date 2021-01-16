@@ -1,11 +1,11 @@
+use crossterm::event::{KeyCode, KeyEvent};
 use tui::buffer::Buffer;
+use tui::layout::{Constraint, Direction, Layout, Rect};
 use tui::symbols::Marker;
-use tui::widgets::{Widget, Block, Borders};
-use tui::layout::{Layout, Constraint, Direction, Rect};
-use crossterm::event::KeyEvent;
+use tui::widgets::{Block, Borders, Widget};
 
-use crate::widgets::group::GroupWidget;
 use crate::widgets::account::AccountWidget;
+use crate::widgets::group::GroupWidget;
 use crate::widgets::subgroups::SubgroupsWidget;
 use crate::widgets::threads::ThreadsWidget;
 
@@ -33,16 +33,115 @@ impl GroupPage {
         GroupPage {
             group_widget: gw,
             threads_widget: ThreadsWidget::new(
-                vec![String::from("Hello, World!"), String::from("Goodbye, World!")],
-                vec![String::from("BattleMage_"), String::from("foobar")],
+                vec![
+                    String::from("Hello, World!") + &("12345678901234567890".repeat(100))[..],
+                    String::from("Goodbye, World!"),
+                    String::from("Hello, World!") + &("12345678901234567890".repeat(100))[..],
+                    String::from("Goodbye, World!"),
+                    String::from("Hello, World!") + &("12345678901234567890".repeat(100))[..],
+                    String::from("Goodbye, World!"),
+                    String::from("Hello, World!") + &("12345678901234567890".repeat(100))[..],
+                    String::from("Goodbye, World!"),
+                    String::from("Hello, World!") + &("12345678901234567890".repeat(100))[..],
+                    String::from("Goodbye, World!"),
+                    String::from("Hello, World!") + &("12345678901234567890".repeat(100))[..],
+                    String::from("Goodbye, World!"),
+                    String::from("Hello, World!") + &("12345678901234567890".repeat(100))[..],
+                    String::from("Goodbye, World!"),
+                    String::from("Hello, World!") + &("12345678901234567890".repeat(100))[..],
+                    String::from("Goodbye, World!"),
+                    String::from("Hello, World!") + &("12345678901234567890".repeat(100))[..],
+                    String::from("Goodbye, World!"),
+                    String::from("Hello, World!") + &("12345678901234567890".repeat(100))[..],
+                    String::from("Goodbye, World!"),
+                    String::from("Hello, World!") + &("12345678901234567890".repeat(100))[..],
+                    String::from("Goodbye, World!"),
+                    String::from("Hello, World!") + &("12345678901234567890".repeat(100))[..],
+                    String::from("Goodbye, World!"),
+                    String::from("Hello, World!") + &("12345678901234567890".repeat(100))[..],
+                    String::from("Goodbye, World!"),
+                ],
+                vec![
+                    String::from("BattleMage_"),
+                    String::from("foobar"),
+                    String::from("BattleMage_"),
+                    String::from("foobar"),
+                    String::from("BattleMage_"),
+                    String::from("foobar"),
+                    String::from("BattleMage_"),
+                    String::from("foobar"),
+                    String::from("BattleMage_"),
+                    String::from("foobar"),
+                    String::from("BattleMage_"),
+                    String::from("foobar"),
+                    String::from("BattleMage_"),
+                    String::from("foobar"),
+                    String::from("BattleMage_"),
+                    String::from("foobar"),
+                    String::from("BattleMage_"),
+                    String::from("foobar"),
+                    String::from("BattleMage_"),
+                    String::from("foobar"),
+                    String::from("BattleMagxe_"),
+                    String::from("foobar"),
+                    String::from("BattleMage_"),
+                    String::from("foobar"),
+                    String::from("BattleMage_"),
+                    String::from("foobar"),
+                ],
             ),
-            subgroups_widget: SubgroupsWidget::new(vec![String::from("hi"), String::from("bye")]),
+            subgroups_widget: SubgroupsWidget::new(
+                String::from("/test/hi"),
+                vec![
+                    String::from("hi"),
+                    String::from("bye"),
+                    String::from("hello") + &("12345678901234567890".repeat(100))[..],
+                    String::from("hello"),
+                    String::from("hello1"),
+                    String::from("hello2"),
+                    String::from("hello3"),
+                    String::from("hello4"),
+                    String::from("hello5"),
+                    String::from("hello6"),
+                    String::from("hello7"),
+                    String::from("hello8"),
+                ],
+            ),
             account_widget: AccountWidget::new(String::from("BattleMage_")),
             active: ActiveWidget::Group,
         }
     }
 
     pub fn update(&mut self, key: KeyEvent) {
+        if key.modifiers.is_empty() {
+            if let KeyCode::Char(c) = key.code {
+                if c == 'x' {
+                    match self.active {
+                        ActiveWidget::Group => {
+                            self.group_widget.unfocus();
+                            self.threads_widget.focus();
+                            self.active = ActiveWidget::Threads;
+                        }
+                        ActiveWidget::Threads => {
+                            self.threads_widget.unfocus();
+                            self.subgroups_widget.focus();
+                            self.active = ActiveWidget::Subgroups;
+                        }
+                        ActiveWidget::Subgroups => {
+                            self.subgroups_widget.unfocus();
+                            self.account_widget.focus();
+                            self.active = ActiveWidget::Account;
+                        }
+                        ActiveWidget::Account => {
+                            self.account_widget.unfocus();
+                            self.group_widget.focus();
+                            self.active = ActiveWidget::Group;
+                        }
+                    };
+                    return;
+                }
+            }
+        }
         match self.active {
             ActiveWidget::Group => self.group_widget.update(key),
             ActiveWidget::Threads => self.threads_widget.update(key),
@@ -50,10 +149,8 @@ impl GroupPage {
             ActiveWidget::Account => self.account_widget.update(key),
         }
     }
-}
 
-impl Widget for GroupPage {
-    fn render(self, area: Rect, buf: &mut Buffer) { 
+    pub fn resize(&mut self, area: &Rect) {
         let chunks = Layout::default()
             .direction(Direction::Vertical)
             .margin(1)
@@ -63,7 +160,28 @@ impl Widget for GroupPage {
                     Constraint::Percentage(60),
                     Constraint::Percentage(20),
                     Constraint::Percentage(10),
-                ].as_ref()
+                ]
+                .as_ref(),
+            )
+            .split(area.clone());
+        self.threads_widget.resize(&chunks[1]);
+        self.subgroups_widget.resize(&chunks[2]);
+    }
+}
+
+impl Widget for GroupPage {
+    fn render(self, area: Rect, buf: &mut Buffer) {
+        let chunks = Layout::default()
+            .direction(Direction::Vertical)
+            .margin(1)
+            .constraints(
+                [
+                    Constraint::Percentage(10),
+                    Constraint::Percentage(60),
+                    Constraint::Percentage(20),
+                    Constraint::Percentage(10),
+                ]
+                .as_ref(),
             )
             .split(area);
         self.group_widget.render(chunks[0], buf);

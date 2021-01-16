@@ -10,6 +10,7 @@ use crossterm::terminal;
 use std::io;
 use std::thread;
 use std::time::Duration;
+use std::sync::Mutex;
 use tui::backend::CrosstermBackend;
 use tui::Terminal;
 
@@ -38,7 +39,10 @@ fn cleanup_terminal() {
 fn setup_ui_events() -> Receiver<Event> {
     let (tx, rx) = unbounded();
     thread::spawn(move || loop {
-        tx.send(crossterm::event::read().unwrap()).unwrap();
+        match tx.send(crossterm::event::read().unwrap()) {
+            Ok(_) => {},
+            Err(_) => {},  
+        }
     });
     return rx;
 }

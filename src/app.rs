@@ -1,5 +1,5 @@
-use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseEvent};
 use crate::widgets::page::GroupPage;
+use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseEvent};
 
 #[derive(Debug)]
 pub enum AppPage {
@@ -39,7 +39,7 @@ impl App {
 
     pub fn tick(&mut self) {
         match self.get_page().unwrap() {
-            _ => {},
+            _ => {}
         }
     }
 
@@ -48,9 +48,9 @@ impl App {
             AppPage::Group(gp) => {
                 gp.update(chr);
             }
-            _ => {},
+            _ => {}
         }
-    } 
+    }
 
     pub fn get_page(&mut self) -> Option<&mut AppPage> {
         if self.route.is_empty() {
