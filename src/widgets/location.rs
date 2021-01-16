@@ -6,15 +6,15 @@ use tui::symbols::Marker;
 use tui::widgets::{Block, Borders, Paragraph, Widget, Wrap};
 
 #[derive(Debug, Clone)]
-pub struct GroupWidget {
-    group: String,
+pub struct LocationWidget {
+    loc: String,
     focused: bool,
 }
 
-impl GroupWidget {
-    pub fn new(group: String) -> GroupWidget {
-        GroupWidget {
-            group,
+impl LocationWidget {
+    pub fn new(loc: String) -> LocationWidget {
+        LocationWidget {
+            loc,
             focused: false,
         }
     }
@@ -30,16 +30,19 @@ impl GroupWidget {
     pub fn update(&mut self, key: KeyEvent) {}
 }
 
-impl Widget for GroupWidget {
+impl Widget for LocationWidget {
     fn render(self, area: Rect, buf: &mut Buffer) {
-        let paragraph = Paragraph::new(self.group)
-            .block(Block::default().title("Group").borders(Borders::ALL).style(
-                Style::default().bg(Color::Green).fg(if self.focused {
-                    Color::Cyan
-                } else {
-                    Color::White
-                }),
-            ))
+        let paragraph = Paragraph::new(self.loc)
+            .block(
+                Block::default()
+                    .title("Location")
+                    .borders(Borders::ALL)
+                    .style(Style::default().bg(Color::Green).fg(if self.focused {
+                        Color::Cyan
+                    } else {
+                        Color::White
+                    })),
+            )
             .wrap(Wrap { trim: true });
         paragraph.render(area, buf);
     }

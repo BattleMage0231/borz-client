@@ -1,14 +1,11 @@
 use crossterm::event::{KeyCode, KeyEvent};
+use std::cmp::min;
 use tui::buffer::Buffer;
 use tui::layout::{Constraint, Direction, Layout, Rect};
 use tui::style::{Color, Style};
 use tui::symbols::Marker;
 use tui::text::{Span, Spans};
 use tui::widgets::{Block, Borders, Paragraph, Widget, Wrap};
-use std::cmp::min;
-
-const UP_ARROW: char = 38_u8 as char;
-const DOWN_ARROW: char = 40_u8 as char;
 
 #[derive(Debug, Clone)]
 pub struct ThreadsWidget {
@@ -36,7 +33,6 @@ impl ThreadsWidget {
 
     pub fn focus(&mut self) {
         self.focused = true;
-        self.selected_row = 0;
     }
 
     pub fn unfocus(&mut self) {
@@ -73,18 +69,18 @@ impl ThreadsWidget {
                 KeyCode::Down if self.selected_row < self.threads.len() - 1 => {
                     self.selected_row += 1;
                     self.scroll();
-                },
+                }
                 KeyCode::Up if self.selected_row > 0 => {
                     self.selected_row -= 1;
                     self.scroll();
-                },
+                }
                 KeyCode::Left if !self.on_left => {
                     self.on_left = true;
-                },
+                }
                 KeyCode::Right if self.on_left => {
                     self.on_left = false;
                 }
-                _ => {},
+                _ => {}
             }
         }
     }
@@ -97,20 +93,26 @@ impl Widget for ThreadsWidget {
             .constraints([Constraint::Percentage(85), Constraint::Percentage(15)].as_ref())
             .split(area);
         let mut text = vec![];
-        for (pos, thread) in self.threads[self.scroll_top..self.scroll_bottom].iter().enumerate() {
-            let span = Spans::from(vec![Span::styled({
-                if thread.len() > area.width as usize {
-                    String::from(&thread[..(chunks[0].width as usize - 5)]) + "..."
-                } else {
-                    thread.clone()
-                }
-            }, {
-                if self.focused && pos + self.scroll_top == self.selected_row && self.on_left {
-                    Style::default().bg(Color::Red)
-                } else {
-                    Style::default()
-                }
-            })]);
+        for (pos, thread) in self.threads[self.scroll_top..self.scroll_bottom]
+            .iter()
+            .enumerate()
+        {
+            let span = Spans::from(vec![Span::styled(
+                {
+                    if thread.len() > area.width as usize {
+                        String::from(&thread[..(chunks[0].width as usize - 5)]) + "..."
+                    } else {
+                        thread.clone()
+                    }
+                },
+                {
+                    if self.focused && pos + self.scroll_top == self.selected_row && self.on_left {
+                        Style::default().bg(Color::Red)
+                    } else {
+                        Style::default()
+                    }
+                },
+            )]);
             text.push(span);
         }
         let paragraph = Paragraph::new(text)
@@ -123,20 +125,26 @@ impl Widget for ThreadsWidget {
             .wrap(Wrap { trim: true });
         paragraph.render(chunks[0], buf);
         let mut text = vec![];
-        for (pos, author) in self.authors[self.scroll_top..self.scroll_bottom].iter().enumerate() {
-            let span = Spans::from(vec![Span::styled({
-                if author.len() > area.width as usize {
-                    String::from(&author[..(chunks[1].width as usize - 5)]) + "..."
-                } else {
-                    author.clone()
-                }
-            }, {
-                if self.focused && pos + self.scroll_top == self.selected_row && !self.on_left {
-                    Style::default().bg(Color::Red)
-                } else {
-                    Style::default()
-                }
-            })]);
+        for (pos, author) in self.authors[self.scroll_top..self.scroll_bottom]
+            .iter()
+            .enumerate()
+        {
+            let span = Spans::from(vec![Span::styled(
+                {
+                    if author.len() > area.width as usize {
+                        String::from(&author[..(chunks[1].width as usize - 5)]) + "..."
+                    } else {
+                        author.clone()
+                    }
+                },
+                {
+                    if self.focused && pos + self.scroll_top == self.selected_row && !self.on_left {
+                        Style::default().bg(Color::Red)
+                    } else {
+                        Style::default()
+                    }
+                },
+            )]);
             text.push(span);
         }
         let paragraph = Paragraph::new(text)

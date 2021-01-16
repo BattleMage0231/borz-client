@@ -1,11 +1,11 @@
 use crossterm::event::{KeyCode, KeyEvent};
+use std::cmp::min;
 use tui::buffer::Buffer;
 use tui::layout::{Constraint, Direction, Layout, Rect};
 use tui::style::{Color, Style};
 use tui::symbols::Marker;
 use tui::text::{Span, Spans};
 use tui::widgets::{Block, Borders, Paragraph, Widget, Wrap};
-use std::cmp::min;
 
 #[derive(Debug, Clone)]
 pub struct SubgroupsWidget {
@@ -67,12 +67,12 @@ impl SubgroupsWidget {
                 KeyCode::Down if self.selected_row < self.subgroups.len() - 1 => {
                     self.selected_row += 1;
                     self.scroll();
-                },
+                }
                 KeyCode::Up if self.selected_row > 0 => {
                     self.selected_row -= 1;
                     self.scroll();
                 }
-                _ => {},
+                _ => {}
             }
         }
     }
@@ -81,28 +81,40 @@ impl SubgroupsWidget {
 impl Widget for SubgroupsWidget {
     fn render(self, area: Rect, buf: &mut Buffer) {
         let mut text = vec![];
-        for (pos, subgroup) in self.subgroups[self.scroll_top..self.scroll_bottom].iter().enumerate() {
+        for (pos, subgroup) in self.subgroups[self.scroll_top..self.scroll_bottom]
+            .iter()
+            .enumerate()
+        {
             let name = self.group.clone() + &subgroup[..];
-            let span = Spans::from(vec![Span::styled({
-                if name.len() > area.width as usize {
-                    String::from("...") + &name[(name.len() - area.width as usize + 5)..]
-                } else {
-                    name
-                }
-            }, {
-                if self.focused && pos + self.scroll_top == self.selected_row {
-                    Style::default().bg(Color::Red)
-                } else {
-                    Style::default()
-                }
-            })]);
+            let span = Spans::from(vec![Span::styled(
+                {
+                    if name.len() > area.width as usize {
+                        String::from("...") + &name[(name.len() - area.width as usize + 5)..]
+                    } else {
+                        name
+                    }
+                },
+                {
+                    if self.focused && pos + self.scroll_top == self.selected_row {
+                        Style::default().bg(Color::Red)
+                    } else {
+                        Style::default()
+                    }
+                },
+            )]);
             text.push(span);
         }
         let paragraph = Paragraph::new(text)
-            .block(Block::default()
-            .title("Subgroups")
-            .borders(Borders::ALL)
-            .style(Style::default().bg(Color::Green).fg(if self.focused { Color::Cyan } else { Color::White })))
+            .block(
+                Block::default()
+                    .title("Subgroups")
+                    .borders(Borders::ALL)
+                    .style(Style::default().bg(Color::Green).fg(if self.focused {
+                        Color::Cyan
+                    } else {
+                        Color::White
+                    })),
+            )
             .wrap(Wrap { trim: true });
         paragraph.render(area, buf);
     }

@@ -8,9 +8,9 @@ use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseEvent};
 use crossterm::execute;
 use crossterm::terminal;
 use std::io;
+use std::sync::Mutex;
 use std::thread;
 use std::time::Duration;
-use std::sync::Mutex;
 use tui::backend::CrosstermBackend;
 use tui::Terminal;
 
@@ -40,8 +40,8 @@ fn setup_ui_events() -> Receiver<Event> {
     let (tx, rx) = unbounded();
     thread::spawn(move || loop {
         match tx.send(crossterm::event::read().unwrap()) {
-            Ok(_) => {},
-            Err(_) => {},  
+            Ok(_) => {}
+            Err(_) => {}
         }
     });
     return rx;

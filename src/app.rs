@@ -1,40 +1,25 @@
-use crate::widgets::page::GroupPage;
+use crate::widgets::page::{GroupPage, ThreadPage, UserPage};
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseEvent};
 
 #[derive(Debug)]
 pub enum AppPage {
-    Home,
+    User(UserPage),
     Group(GroupPage),
-    Thread,
-}
-
-#[derive(Debug)]
-pub enum ActiveBlock {
-    Group,
-    Threads,
-    Subgroups,
-    Account,
+    Thread(ThreadPage),
 }
 
 #[derive(Debug)]
 pub struct App {
     route: Vec<AppPage>,
-    chars: Vec<char>,
 }
 
 impl App {
     pub fn new() -> App {
-        App {
-            route: Vec::new(),
-            chars: Vec::new(),
-        }
+        App { route: Vec::new() }
     }
 
     pub fn start(&mut self) {
-        self.route.push(AppPage::Group(GroupPage::new())); // debug
-        if self.route.is_empty() {
-            self.route.push(AppPage::Home);
-        }
+        self.route.push(AppPage::Thread(ThreadPage::new())); // debug
     }
 
     pub fn tick(&mut self) {
@@ -48,7 +33,24 @@ impl App {
             AppPage::Group(gp) => {
                 gp.update(chr);
             }
-            _ => {}
+            AppPage::User(up) => {
+                up.update(chr);
+            }
+            AppPage::Thread(tp) => {
+                tp.update(chr);
+            }
+        }
+    }
+
+    pub fn push_page(&mut self, page: AppPage) {
+        self.route.push(page);
+    }
+
+    pub fn pop_page(&mut self) -> Option<AppPage> {
+        if self.route.is_empty() {
+            None
+        } else {
+            Some(self.route.pop().unwrap())
         }
     }
 

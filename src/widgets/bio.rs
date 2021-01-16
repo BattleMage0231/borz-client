@@ -1,20 +1,24 @@
-use crossterm::event::KeyEvent;
+use crossterm::event::{KeyCode, KeyEvent};
+use std::cmp::min;
 use tui::buffer::Buffer;
 use tui::layout::{Constraint, Direction, Layout, Rect};
 use tui::style::{Color, Style};
 use tui::symbols::Marker;
+use tui::text::{Span, Spans};
 use tui::widgets::{Block, Borders, Paragraph, Widget, Wrap};
 
 #[derive(Debug, Clone)]
-pub struct AccountWidget {
-    account: String,
+pub struct BioWidget {
+    content: String,
+    selected_row: usize,
     focused: bool,
 }
 
-impl AccountWidget {
-    pub fn new(account: String) -> AccountWidget {
-        AccountWidget {
-            account,
+impl BioWidget {
+    pub fn new(content: String) -> BioWidget {
+        BioWidget {
+            content,
+            selected_row: 0,
             focused: false,
         }
     }
@@ -30,12 +34,12 @@ impl AccountWidget {
     pub fn update(&mut self, key: KeyEvent) {}
 }
 
-impl Widget for AccountWidget {
+impl Widget for BioWidget {
     fn render(self, area: Rect, buf: &mut Buffer) {
-        let paragraph = Paragraph::new(format!("You are currently logged in as {}", self.account))
+        let paragraph = Paragraph::new(self.content)
             .block(
                 Block::default()
-                    .title("Account")
+                    .title("Subgroups")
                     .borders(Borders::ALL)
                     .style(Style::default().bg(Color::Green).fg(if self.focused {
                         Color::Cyan
