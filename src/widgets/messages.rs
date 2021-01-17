@@ -1,6 +1,6 @@
 use crate::app::{App, AppPage};
 use crate::widgets::page::ThreadPage;
-use crossterm::event::{KeyCode, KeyEvent};
+use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use std::cmp::min;
 use tui::buffer::Buffer;
 use tui::layout::Rect;
@@ -221,7 +221,21 @@ impl MessagesWidget {
                 }
                 KeyCode::Char(c) => {
                     if self.editing {
-                        if c.is_ascii_alphanumeric() || c.is_ascii_punctuation() {
+                        if c.is_ascii_alphanumeric() || c.is_ascii_punctuation() || c == ' ' {
+                            if self.input_buffer.is_empty() {
+                                self.input_buffer.push(Vec::new());
+                            }
+                            self.input_buffer[self.selected_row].push(c);
+                        }
+                    }
+                }
+                _ => {}
+            }
+        } else if key.modifiers == KeyModifiers::SHIFT {
+            match key.code {
+                KeyCode::Char(c) => {
+                    if self.editing {
+                        if c.is_ascii_alphanumeric() || c.is_ascii_punctuation() || c == ' ' {
                             if self.input_buffer.is_empty() {
                                 self.input_buffer.push(Vec::new());
                             }
