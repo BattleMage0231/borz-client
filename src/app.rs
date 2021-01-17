@@ -1,9 +1,10 @@
 use crate::api::fetch::APIFetcher;
 use crate::widgets::page::{GroupPage, ThreadPage, UserPage};
-use crate::{API_ENDPOINT, TOP_LEVEL_ID};
+use crate::TOP_LEVEL_ID;
 use clap::ArgMatches;
 use crossterm::event::KeyEvent;
 use json::JsonValue;
+use url::Url;
 
 #[derive(Debug)]
 pub enum AppPage {
@@ -30,7 +31,10 @@ impl<'a> App<'a> {
 
     pub fn start(&mut self) {
         self.route.push(AppPage::Group(GroupPage::new(
-            APIFetcher::new(API_ENDPOINT.clone(), TOP_LEVEL_ID.clone()),
+            APIFetcher::new(
+                Url::parse(&self.config["server"].to_string()[..]).unwrap(),
+                TOP_LEVEL_ID.clone(),
+            ),
             String::from("/Universe"),
             self.config["username"].to_string(),
         )));

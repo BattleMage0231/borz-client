@@ -145,6 +145,7 @@ impl APIFetcher {
         let json = json::parse(&content[..]).unwrap();
         let refresh = json["refresh_token"].to_string();
         let username = json["username"].to_string();
+        let server = json["server"].to_string();
         let mutation = RefreshMutation::build_query(refresh_mutation::Variables {
             refresh_token: refresh,
         });
@@ -165,8 +166,8 @@ impl APIFetcher {
         fs::write(
             CONFIG_FILE_PATH.clone(),
             format!(
-                "{{\"token\": \"{}\", \"refresh_token\": \"{}\", \"username\": \"{}\"}}",
-                self.token, refresh_token, username
+                "{{\"token\": \"{}\", \"refresh_token\": \"{}\", \"username\": \"{}\", \"server\": \"{}\"}}",
+                self.token, refresh_token, username, server
             ),
         )
         .unwrap();

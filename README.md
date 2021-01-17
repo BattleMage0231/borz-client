@@ -18,7 +18,7 @@ cargo build --release
 ```
 
 ### Running the program
-To run the program, you have to first log in into an account managed by the instance of the server you specified. 
+To run the program, you have to first log in into an account managed by the instance of the server you specified. When you are prompted the for the server address, you may enter "https://api.borz.paullee.dev/graphql" for our hosted server.
 
 ```sh
 borz signup
