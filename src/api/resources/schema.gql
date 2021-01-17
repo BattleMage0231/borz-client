@@ -1,0 +1,393 @@
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+input ArchiveAccountInput {
+  clientMutationId: String
+  password: String!
+}
+
+type ArchiveAccountPayload {
+  success: Boolean
+  errors: ExpectedErrorType
+  clientMutationId: String
+}
+
+input CreateSubgroupInput {
+  name: String!
+  slug: String!
+  description: String!
+  parent: ID
+  clientMutationId: String
+}
+
+type CreateSubgroupPayload {
+  subgroup: SubgroupNode
+  clientMutationId: String
+}
+
+input CreateThreadInput {
+  title: String!
+  content: String!
+  subgroup: ID!
+  clientMutationId: String
+}
+
+type CreateThreadPayload {
+  thread: ThreadNode
+  clientMutationId: String
+}
+
+scalar DateTime
+
+input DeleteAccountInput {
+  clientMutationId: String
+  password: String!
+}
+
+type DeleteAccountPayload {
+  success: Boolean
+  errors: ExpectedErrorType
+  clientMutationId: String
+}
+
+scalar ExpectedErrorType
+
+scalar GenericScalar
+
+type Mutation {
+  createThread(input: CreateThreadInput!): CreateThreadPayload
+  createSubgroup(input: CreateSubgroupInput!): CreateSubgroupPayload
+  register(input: RegisterInput!): RegisterPayload
+  verifyAccount(input: VerifyAccountInput!): VerifyAccountPayload
+  resendActivationEmail(input: ResendActivationEmailInput!): ResendActivationEmailPayload
+  sendPasswordResetEmail(input: SendPasswordResetEmailInput!): SendPasswordResetEmailPayload
+  passwordReset(input: PasswordResetInput!): PasswordResetPayload
+  passwordSet(input: PasswordSetInput!): PasswordSetPayload
+  passwordChange(input: PasswordChangeInput!): PasswordChangePayload
+  updateAccount(input: UpdateAccountInput!): UpdateAccountPayload
+  archiveAccount(input: ArchiveAccountInput!): ArchiveAccountPayload
+  deleteAccount(input: DeleteAccountInput!): DeleteAccountPayload
+  sendSecondaryEmailActivation(input: SendSecondaryEmailActivationInput!): SendSecondaryEmailActivationPayload
+  verifySecondaryEmail(input: VerifySecondaryEmailInput!): VerifySecondaryEmailPayload
+  swapEmails(input: SwapEmailsInput!): SwapEmailsPayload
+  removeSecondaryEmail(input: RemoveSecondaryEmailInput!): RemoveSecondaryEmailPayload
+  tokenAuth(input: ObtainJSONWebTokenInput!): ObtainJSONWebTokenPayload
+  verifyToken(input: VerifyTokenInput!): VerifyTokenPayload
+  refreshToken(input: RefreshTokenInput!): RefreshTokenPayload
+  revokeToken(input: RevokeTokenInput!): RevokeTokenPayload
+}
+
+interface Node {
+  id: ID!
+}
+
+input ObtainJSONWebTokenInput {
+  clientMutationId: String
+  password: String!
+  email: String
+  username: String
+}
+
+type ObtainJSONWebTokenPayload {
+  token: String
+  success: Boolean
+  errors: ExpectedErrorType
+  user: UserNode
+  unarchiving: Boolean
+  clientMutationId: String
+  refreshToken: String
+}
+
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+}
+
+input PasswordChangeInput {
+  clientMutationId: String
+  oldPassword: String!
+  newPassword1: String!
+  newPassword2: String!
+}
+
+type PasswordChangePayload {
+  success: Boolean
+  errors: ExpectedErrorType
+  clientMutationId: String
+  refreshToken: String
+  token: String
+}
+
+input PasswordResetInput {
+  clientMutationId: String
+  token: String!
+  newPassword1: String!
+  newPassword2: String!
+}
+
+type PasswordResetPayload {
+  success: Boolean
+  errors: ExpectedErrorType
+  clientMutationId: String
+}
+
+input PasswordSetInput {
+  clientMutationId: String
+  token: String!
+  newPassword1: String!
+  newPassword2: String!
+}
+
+type PasswordSetPayload {
+  success: Boolean
+  errors: ExpectedErrorType
+  clientMutationId: String
+}
+
+type Query {
+  thread(id: ID!): ThreadNode
+  threads(offset: Int, before: String, after: String, first: Int, last: Int, title: String, content: String, created: DateTime, modified: DateTime, author: ID, subgroup: ID): ThreadNodeConnection
+  reply(id: ID!): ReplyNode
+  replies(offset: Int, before: String, after: String, first: Int, last: Int, content: String, created: DateTime, modified: DateTime, author: ID, thread: ID): ReplyNodeConnection
+  subgroup(id: ID!): SubgroupNode
+  subgroups(offset: Int, before: String, after: String, first: Int, last: Int, name: String, slug: String, description: String, created: DateTime, parent: ID): SubgroupNodeConnection
+  me: UserNode
+  user(id: ID!): UserNode
+  users(offset: Int, before: String, after: String, first: Int, last: Int, email: String, username: String, username_Icontains: String, username_Istartswith: String, isActive: Boolean, status_Archived: Boolean, status_Verified: Boolean, status_SecondaryEmail: String): UserNodeConnection
+}
+
+input RefreshTokenInput {
+  refreshToken: String!
+  clientMutationId: String
+}
+
+type RefreshTokenPayload {
+  token: String
+  payload: GenericScalar
+  success: Boolean
+  errors: ExpectedErrorType
+  clientMutationId: String
+  refreshToken: String
+}
+
+input RegisterInput {
+  clientMutationId: String
+  email: String!
+  username: String!
+  password1: String!
+  password2: String!
+}
+
+type RegisterPayload {
+  success: Boolean
+  errors: ExpectedErrorType
+  clientMutationId: String
+  refreshToken: String
+  token: String
+}
+
+input RemoveSecondaryEmailInput {
+  clientMutationId: String
+  password: String!
+}
+
+type RemoveSecondaryEmailPayload {
+  success: Boolean
+  errors: ExpectedErrorType
+  clientMutationId: String
+}
+
+type ReplyNode implements Node {
+  id: ID!
+  content: String!
+  created: DateTime!
+  modified: DateTime!
+  thread: ThreadNode!
+}
+
+type ReplyNodeConnection {
+  pageInfo: PageInfo!
+  edges: [ReplyNodeEdge]!
+}
+
+type ReplyNodeEdge {
+  node: ReplyNode
+  cursor: String!
+}
+
+input ResendActivationEmailInput {
+  clientMutationId: String
+  email: String!
+}
+
+type ResendActivationEmailPayload {
+  success: Boolean
+  errors: ExpectedErrorType
+  clientMutationId: String
+}
+
+input RevokeTokenInput {
+  refreshToken: String!
+  clientMutationId: String
+}
+
+type RevokeTokenPayload {
+  revoked: Int
+  success: Boolean
+  errors: ExpectedErrorType
+  clientMutationId: String
+}
+
+input SendPasswordResetEmailInput {
+  clientMutationId: String
+  email: String!
+}
+
+type SendPasswordResetEmailPayload {
+  success: Boolean
+  errors: ExpectedErrorType
+  clientMutationId: String
+}
+
+input SendSecondaryEmailActivationInput {
+  clientMutationId: String
+  email: String!
+  password: String!
+}
+
+type SendSecondaryEmailActivationPayload {
+  success: Boolean
+  errors: ExpectedErrorType
+  clientMutationId: String
+}
+
+type SubgroupNode implements Node {
+  id: ID!
+  name: String!
+  slug: String!
+  description: String!
+  created: DateTime!
+  parent: SubgroupNode
+  subgroupSet(offset: Int, before: String, after: String, first: Int, last: Int, name: String, slug: String, description: String, created: DateTime, parent: ID): SubgroupNodeConnection!
+  threads(offset: Int, before: String, after: String, first: Int, last: Int, title: String, content: String, created: DateTime, modified: DateTime, author: ID, subgroup: ID): ThreadNodeConnection!
+}
+
+type SubgroupNodeConnection {
+  pageInfo: PageInfo!
+  edges: [SubgroupNodeEdge]!
+}
+
+type SubgroupNodeEdge {
+  node: SubgroupNode
+  cursor: String!
+}
+
+input SwapEmailsInput {
+  clientMutationId: String
+  password: String!
+}
+
+type SwapEmailsPayload {
+  success: Boolean
+  errors: ExpectedErrorType
+  clientMutationId: String
+}
+
+type ThreadNode implements Node {
+  id: ID!
+  title: String!
+  content: String!
+  created: DateTime!
+  modified: DateTime!
+  subgroup: SubgroupNode
+  replies(offset: Int, before: String, after: String, first: Int, last: Int, content: String, created: DateTime, modified: DateTime, author: ID, thread: ID): ReplyNodeConnection!
+}
+
+type ThreadNodeConnection {
+  pageInfo: PageInfo!
+  edges: [ThreadNodeEdge]!
+}
+
+type ThreadNodeEdge {
+  node: ThreadNode
+  cursor: String!
+}
+
+input UpdateAccountInput {
+  clientMutationId: String
+  firstName: String
+  lastName: String
+}
+
+type UpdateAccountPayload {
+  success: Boolean
+  errors: ExpectedErrorType
+  clientMutationId: String
+}
+
+type UserNode implements Node {
+  id: ID!
+  lastLogin: DateTime
+  username: String!
+  firstName: String!
+  lastName: String!
+  email: String!
+  isStaff: Boolean!
+  isActive: Boolean!
+  dateJoined: DateTime!
+  isLocal: Boolean!
+  threadSet(offset: Int, before: String, after: String, first: Int, last: Int, title: String, content: String, created: DateTime, modified: DateTime, author: ID, subgroup: ID): ThreadNodeConnection!
+  replySet(offset: Int, before: String, after: String, first: Int, last: Int, content: String, created: DateTime, modified: DateTime, author: ID, thread: ID): ReplyNodeConnection!
+  pk: Int
+  archived: Boolean
+  verified: Boolean
+  secondaryEmail: String
+}
+
+type UserNodeConnection {
+  pageInfo: PageInfo!
+  edges: [UserNodeEdge]!
+}
+
+type UserNodeEdge {
+  node: UserNode
+  cursor: String!
+}
+
+input VerifyAccountInput {
+  clientMutationId: String
+  token: String!
+}
+
+type VerifyAccountPayload {
+  success: Boolean
+  errors: ExpectedErrorType
+  clientMutationId: String
+}
+
+input VerifySecondaryEmailInput {
+  clientMutationId: String
+  token: String!
+}
+
+type VerifySecondaryEmailPayload {
+  success: Boolean
+  errors: ExpectedErrorType
+  clientMutationId: String
+}
+
+input VerifyTokenInput {
+  token: String!
+  clientMutationId: String
+}
+
+type VerifyTokenPayload {
+  payload: GenericScalar
+  success: Boolean
+  errors: ExpectedErrorType
+  clientMutationId: String
+}
