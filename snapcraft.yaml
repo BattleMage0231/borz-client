@@ -1,0 +1,23 @@
+name: borz
+version: '0.1'
+summary: A command line interface for the Borz social networking platform
+description: |
+  borz is a command line client for the Borz social networking platform,
+  which involves a new type of groups for better representation of the
+  world that we live in.
+confinement: strict
+base: core18
+plugs:
+  borz-config:
+    interface: personal-files
+    write:
+    - $HOME/.config/Borz
+parts:
+  borz:
+    plugin: rust
+    source: https://github.com/BattleMage0231/borz-client
+apps:
+  borz:
+    command: bin/borz
+    plugs:
+    - borz-config
