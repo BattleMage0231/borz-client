@@ -1,9 +1,10 @@
+use crate::app::{App, AppPage};
+use crate::widgets::page::ThreadPage;
 use crossterm::event::{KeyCode, KeyEvent};
 use std::cmp::min;
 use tui::buffer::Buffer;
-use tui::layout::{Constraint, Direction, Layout, Rect};
+use tui::layout::Rect;
 use tui::style::{Color, Style};
-use tui::symbols::Marker;
 use tui::text::{Span, Spans};
 use tui::widgets::{Block, Borders, Paragraph, Widget, Wrap};
 
@@ -19,10 +20,16 @@ pub struct MessagesWidget {
     editing: bool,
     scroll_top: usize,
     scroll_bottom: usize,
+    new: bool,
 }
 
 impl MessagesWidget {
-    pub fn new(authors: Vec<String>, messages: Vec<Vec<String>>, author: String) -> MessagesWidget {
+    pub fn new(
+        authors: Vec<String>,
+        messages: Vec<Vec<String>>,
+        author: String,
+        new: bool,
+    ) -> MessagesWidget {
         MessagesWidget {
             author,
             authors,
@@ -31,9 +38,10 @@ impl MessagesWidget {
             selected_message: 0,
             selected_row: 0,
             focused: false,
-            editing: false,
+            editing: new,
             scroll_top: 0,
             scroll_bottom: 0,
+            new,
         }
     }
 
@@ -82,9 +90,9 @@ impl MessagesWidget {
         }
     }
 
-    pub fn update(&mut self, key: KeyEvent) {
+    pub fn update(&mut self, key: KeyEvent) -> Box<dyn for<'a> Fn(&'a mut App)> {
         if !self.focused {
-            return;
+            return Box::new(|_| {});
         }
         if key.modifiers.is_empty() {
             match key.code {
@@ -119,6 +127,9 @@ impl MessagesWidget {
                     self.scroll();
                 }
                 KeyCode::Left => {
+                    if self.new {
+                        return Box::new(|_| {});
+                    }
                     if self.editing {
                         self.editing = false;
                         self.selected_message = self.messages.len() - 1;
@@ -185,9 +196,40 @@ impl MessagesWidget {
                         }
                     }
                 }
+                KeyCode::End => {
+                    let mut content = String::new();
+                    for line in self.input_buffer.iter() {
+                        for chr in line.iter() {
+                            content.push(*chr);
+                        }
+                        content.push('\n');
+                    }
+                    content = String::from(content.trim());
+                    if !content.is_empty() {
+                        return Box::new(move |app| {
+                            if let AppPage::Thread(tp) = app.get_page().unwrap() {
+                                tp.fetcher
+                                    .mutate_thread_reply(tp.thread_id.clone(), content.clone());
+                                let tp = tp.clone();
+                                // reset page
+                                app.pop_page();
+                                app.push_page(AppPage::Thread(ThreadPage::new(
+                                    tp.fetcher.clone(),
+                                    tp.group_path.clone(),
+                                    tp.thread_id.clone(),
+                                    tp.username.clone(),
+                                    false,
+                                )));
+                            } else {
+                                panic!("Wrong page execution");
+                            }
+                        });
+                    }
+                }
                 _ => {}
             }
         }
+        return Box::new(|_| {});
     }
 }
 

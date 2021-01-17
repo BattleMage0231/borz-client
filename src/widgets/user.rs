@@ -1,23 +1,21 @@
+use crate::app::App;
 use crossterm::event::KeyEvent;
 use tui::buffer::Buffer;
-use tui::layout::{Constraint, Direction, Layout, Rect};
+use tui::layout::Rect;
 use tui::style::{Color, Style};
-use tui::symbols::Marker;
 use tui::text::{Span, Spans};
 use tui::widgets::{Block, Borders, Paragraph, Widget, Wrap};
 
 #[derive(Debug, Clone)]
 pub struct UserWidget {
-    group: String,
     username: String,
     join_time: u64,
     focused: bool,
 }
 
 impl UserWidget {
-    pub fn new(group: String, username: String, join_time: u64) -> UserWidget {
+    pub fn new(username: String, join_time: u64) -> UserWidget {
         UserWidget {
-            group,
             username,
             join_time,
             focused: false,
@@ -32,7 +30,9 @@ impl UserWidget {
         self.focused = false;
     }
 
-    pub fn update(&mut self, key: KeyEvent) {}
+    pub fn update(&mut self, key: KeyEvent) -> Box<dyn for<'a> Fn(&'a mut App)> {
+        return Box::new(|_| {});
+    }
 }
 
 impl Widget for UserWidget {
@@ -41,10 +41,6 @@ impl Widget for UserWidget {
         content.push(Spans::from(vec![
             Span::raw("User "),
             Span::styled(self.username, Style::default().fg(Color::Blue)),
-        ]));
-        content.push(Spans::from(vec![
-            Span::raw("From Path "),
-            Span::styled(self.group, Style::default().fg(Color::Blue)),
         ]));
         content.push(Spans::from(vec![
             Span::raw("Joined "),

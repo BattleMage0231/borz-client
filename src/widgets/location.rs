@@ -1,8 +1,8 @@
+use crate::app::App;
 use crossterm::event::KeyEvent;
 use tui::buffer::Buffer;
-use tui::layout::{Constraint, Direction, Layout, Rect};
+use tui::layout::Rect;
 use tui::style::{Color, Style};
-use tui::symbols::Marker;
 use tui::widgets::{Block, Borders, Paragraph, Widget, Wrap};
 
 #[derive(Debug, Clone)]
@@ -27,7 +27,9 @@ impl LocationWidget {
         self.focused = false;
     }
 
-    pub fn update(&mut self, key: KeyEvent) {}
+    pub fn update(&mut self, key: KeyEvent) -> Box<dyn for<'a> Fn(&'a mut App)> {
+        Box::new(|_| {})
+    }
 }
 
 impl Widget for LocationWidget {

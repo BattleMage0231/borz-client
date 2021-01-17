@@ -1,0 +1,122 @@
+mutation RegisterMutation($email: String!, $username: String!, $password: String!) {
+    register(input: {
+        email: $email,
+        username: $username,
+        password1: $password,
+        password2: $password,
+    }) {
+        success
+    }
+}
+
+mutation VerifyMutation($token: String!) {
+    verifyAccount(input: {
+        token: $token
+    }) {
+        success,   
+    }
+}
+
+mutation AuthMutation($username: String!, $password: String!) {
+    tokenAuth(input: {
+        username: $username,
+        password: $password,
+    }) {
+        user {
+            username,
+        },
+        success,
+        token,
+        refreshToken,
+    }
+}
+
+mutation RefreshMutation($refresh_token: String!) {
+    refreshToken(input: {
+        refreshToken: $refresh_token,
+    }) {
+        success,
+        token,
+        refreshToken,
+    }
+}
+
+query SubgroupsQuery($id: ID!) {
+    subgroup(id: $id) {
+        childGroup {
+            edges {
+                node {
+                    name,
+                    id
+                }
+            }
+        }
+    }
+}
+
+query UserQuery($id: ID!) {
+    user(id: $id) {
+        username
+        dateJoined
+    }
+}
+
+mutation ThreadUpdateMutation($id: ID!, $content: String!) {
+    createReply(input: {
+        thread: $id,
+        content: $content,
+    }) {
+        reply {
+            id
+        }
+    }
+}
+
+query ThreadContentQuery($id: ID!) {
+    thread(id: $id) {
+        author {
+            username,
+        },
+        content,
+        replies {
+            edges {
+                node {
+                    author {
+                        username,
+                    },
+                    content,
+                }
+            }
+        }
+    }
+}
+
+query ThreadsQuery($id: ID!) {
+    subgroup(id: $id) {
+        threads {
+            edges {
+                node {
+                    id,
+                    title,
+                    author {
+                        id,
+                        username,
+                    }
+                }
+            }
+        }
+    }
+}
+
+#query ThreadsQuery($sbid: ID!) {
+#    threads(subgroup: $sbid) {
+#        edges {
+#            node {
+#
+#            }
+#        }
+#    }
+#}
+
+
+

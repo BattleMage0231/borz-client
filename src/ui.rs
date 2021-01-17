@@ -1,8 +1,7 @@
 use crate::app::{App, AppPage};
-use crate::widgets::page::GroupPage;
 use tui::backend::Backend;
-use tui::layout::{Constraint, Direction, Layout, Rect};
-use tui::{Frame, Terminal};
+use tui::layout::{Constraint, Layout};
+use tui::Terminal;
 
 pub fn draw<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) {
     match app.get_page().as_mut().unwrap() {

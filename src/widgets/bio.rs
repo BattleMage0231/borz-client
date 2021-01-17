@@ -1,11 +1,13 @@
-use crossterm::event::{KeyCode, KeyEvent};
-use std::cmp::min;
+use crossterm::event::KeyEvent;
 use tui::buffer::Buffer;
-use tui::layout::{Constraint, Direction, Layout, Rect};
+use tui::layout::Rect;
 use tui::style::{Color, Style};
-use tui::symbols::Marker;
-use tui::text::{Span, Spans};
 use tui::widgets::{Block, Borders, Paragraph, Widget, Wrap};
+
+/* The code for the BioWidget is currently implemented but not in use.
+ * This is because there was not sufficient time to implement a bio (about page) system.
+ * This may be implemented in the future which is why this struct is kept in the code.
+ */
 
 #[derive(Debug, Clone)]
 pub struct BioWidget {

@@ -14,6 +14,46 @@ type ArchiveAccountPayload {
   clientMutationId: String
 }
 
+type BorzUserNode implements Node {
+  id: ID!
+  lastLogin: DateTime
+  username: String!
+  firstName: String!
+  lastName: String!
+  email: String!
+  isStaff: Boolean!
+  isActive: Boolean!
+  dateJoined: String
+  subgroups(offset: Int, before: String, after: String, first: Int, last: Int, name: String, slug: String, description: String, created: DateTime, parent: ID, members: [ID]): SubgroupNodeConnection!
+  threadsAuthored(offset: Int, before: String, after: String, first: Int, last: Int, title: String, content: String, created: DateTime, modified: DateTime, author: ID, subgroup: ID): ThreadNodeConnection!
+  repliesAuthored(offset: Int, before: String, after: String, first: Int, last: Int, content: String, created: DateTime, modified: DateTime, author: ID, thread: ID): ReplyNodeConnection!
+  pk: Int
+  archived: Boolean
+  verified: Boolean
+  secondaryEmail: String
+}
+
+type BorzUserNodeConnection {
+  pageInfo: PageInfo!
+  edges: [BorzUserNodeEdge]!
+}
+
+type BorzUserNodeEdge {
+  node: BorzUserNode
+  cursor: String!
+}
+
+input CreateReplyInput {
+  content: String!
+  thread: ID!
+  clientMutationId: String
+}
+
+type CreateReplyPayload {
+  reply: ReplyNode
+  clientMutationId: String
+}
+
 input CreateSubgroupInput {
   name: String!
   slug: String!
@@ -56,9 +96,35 @@ scalar ExpectedErrorType
 
 scalar GenericScalar
 
+input JoinSubgroupInput {
+  subgroup: ID!
+  clientMutationId: String
+}
+
+type JoinSubgroupPayload {
+  subgroup: SubgroupNode
+  clientMutationId: String
+}
+
+input LeaveSubgroupInput {
+  subgroup: ID!
+  clientMutationId: String
+}
+
+type LeaveSubgroupPayload {
+  subgroup: SubgroupNode
+  clientMutationId: String
+}
+
 type Mutation {
   createThread(input: CreateThreadInput!): CreateThreadPayload
+  updateThread(input: UpdateThreadInput!): UpdateThreadPayload
+  createReply(input: CreateReplyInput!): CreateReplyPayload
+  updateReply(input: UpdateReplyInput!): UpdateReplyPayload
   createSubgroup(input: CreateSubgroupInput!): CreateSubgroupPayload
+  joinSubgroup(input: JoinSubgroupInput!): JoinSubgroupPayload
+  leaveSubgroup(input: LeaveSubgroupInput!): LeaveSubgroupPayload
+  updateSubgroup(input: UpdateSubgroupInput!): UpdateSubgroupPayload
   register(input: RegisterInput!): RegisterPayload
   verifyAccount(input: VerifyAccountInput!): VerifyAccountPayload
   resendActivationEmail(input: ResendActivationEmailInput!): ResendActivationEmailPayload
@@ -154,10 +220,10 @@ type Query {
   reply(id: ID!): ReplyNode
   replies(offset: Int, before: String, after: String, first: Int, last: Int, content: String, created: DateTime, modified: DateTime, author: ID, thread: ID): ReplyNodeConnection
   subgroup(id: ID!): SubgroupNode
-  subgroups(offset: Int, before: String, after: String, first: Int, last: Int, name: String, slug: String, description: String, created: DateTime, parent: ID): SubgroupNodeConnection
+  subgroups(offset: Int, before: String, after: String, first: Int, last: Int, name: String, slug: String, description: String, created: DateTime, parent: ID, members: [ID]): SubgroupNodeConnection
   me: UserNode
-  user(id: ID!): UserNode
-  users(offset: Int, before: String, after: String, first: Int, last: Int, email: String, username: String, username_Icontains: String, username_Istartswith: String, isActive: Boolean, status_Archived: Boolean, status_Verified: Boolean, status_SecondaryEmail: String): UserNodeConnection
+  user(id: ID!): BorzUserNode
+  users(offset: Int, before: String, after: String, first: Int, last: Int, email: String, username: String, username_Icontains: String, username_Istartswith: String, isActive: Boolean, status_Archived: Boolean, status_Verified: Boolean, status_SecondaryEmail: String): BorzUserNodeConnection
 }
 
 input RefreshTokenInput {
@@ -206,6 +272,7 @@ type ReplyNode implements Node {
   content: String!
   created: DateTime!
   modified: DateTime!
+  author: BorzUserNode
   thread: ThreadNode!
 }
 
@@ -272,7 +339,8 @@ type SubgroupNode implements Node {
   description: String!
   created: DateTime!
   parent: SubgroupNode
-  subgroupSet(offset: Int, before: String, after: String, first: Int, last: Int, name: String, slug: String, description: String, created: DateTime, parent: ID): SubgroupNodeConnection!
+  members(offset: Int, before: String, after: String, first: Int, last: Int, email: String, username: String, username_Icontains: String, username_Istartswith: String, isActive: Boolean, status_Archived: Boolean, status_Verified: Boolean, status_SecondaryEmail: String): BorzUserNodeConnection!
+  childGroup(offset: Int, before: String, after: String, first: Int, last: Int, name: String, slug: String, description: String, created: DateTime, parent: ID, members: [ID]): SubgroupNodeConnection!
   threads(offset: Int, before: String, after: String, first: Int, last: Int, title: String, content: String, created: DateTime, modified: DateTime, author: ID, subgroup: ID): ThreadNodeConnection!
 }
 
@@ -303,6 +371,7 @@ type ThreadNode implements Node {
   content: String!
   created: DateTime!
   modified: DateTime!
+  author: BorzUserNode
   subgroup: SubgroupNode
   replies(offset: Int, before: String, after: String, first: Int, last: Int, content: String, created: DateTime, modified: DateTime, author: ID, thread: ID): ReplyNodeConnection!
 }
@@ -329,6 +398,40 @@ type UpdateAccountPayload {
   clientMutationId: String
 }
 
+input UpdateReplyInput {
+  content: String!
+  reply: ID!
+  clientMutationId: String
+}
+
+type UpdateReplyPayload {
+  reply: ReplyNode
+  clientMutationId: String
+}
+
+input UpdateSubgroupInput {
+  description: String!
+  subgroup: ID!
+  clientMutationId: String
+}
+
+type UpdateSubgroupPayload {
+  subgroup: SubgroupNode
+  clientMutationId: String
+}
+
+input UpdateThreadInput {
+  title: String!
+  content: String!
+  thread: ID!
+  clientMutationId: String
+}
+
+type UpdateThreadPayload {
+  thread: ThreadNode
+  clientMutationId: String
+}
+
 type UserNode implements Node {
   id: ID!
   lastLogin: DateTime
@@ -339,23 +442,13 @@ type UserNode implements Node {
   isStaff: Boolean!
   isActive: Boolean!
   dateJoined: DateTime!
-  isLocal: Boolean!
-  threadSet(offset: Int, before: String, after: String, first: Int, last: Int, title: String, content: String, created: DateTime, modified: DateTime, author: ID, subgroup: ID): ThreadNodeConnection!
-  replySet(offset: Int, before: String, after: String, first: Int, last: Int, content: String, created: DateTime, modified: DateTime, author: ID, thread: ID): ReplyNodeConnection!
+  subgroups(offset: Int, before: String, after: String, first: Int, last: Int, name: String, slug: String, description: String, created: DateTime, parent: ID, members: [ID]): SubgroupNodeConnection!
+  threadsAuthored(offset: Int, before: String, after: String, first: Int, last: Int, title: String, content: String, created: DateTime, modified: DateTime, author: ID, subgroup: ID): ThreadNodeConnection!
+  repliesAuthored(offset: Int, before: String, after: String, first: Int, last: Int, content: String, created: DateTime, modified: DateTime, author: ID, thread: ID): ReplyNodeConnection!
   pk: Int
   archived: Boolean
   verified: Boolean
   secondaryEmail: String
-}
-
-type UserNodeConnection {
-  pageInfo: PageInfo!
-  edges: [UserNodeEdge]!
-}
-
-type UserNodeEdge {
-  node: UserNode
-  cursor: String!
 }
 
 input VerifyAccountInput {

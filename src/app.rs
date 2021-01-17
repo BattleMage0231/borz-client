@@ -1,5 +1,9 @@
+use crate::api::fetch::APIFetcher;
 use crate::widgets::page::{GroupPage, ThreadPage, UserPage};
-use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseEvent};
+use clap::ArgMatches;
+use crossterm::event::KeyEvent;
+use json::JsonValue;
+use url::Url;
 
 #[derive(Debug)]
 pub enum AppPage {
@@ -9,17 +13,27 @@ pub enum AppPage {
 }
 
 #[derive(Debug)]
-pub struct App {
+pub struct App<'a> {
     route: Vec<AppPage>,
+    args: ArgMatches<'a>,
+    config: JsonValue,
 }
 
-impl App {
-    pub fn new() -> App {
-        App { route: Vec::new() }
+impl<'a> App<'a> {
+    pub fn new(args: ArgMatches<'a>, config: JsonValue) -> App {
+        App {
+            route: Vec::new(),
+            args,
+            config,
+        }
     }
 
     pub fn start(&mut self) {
-        self.route.push(AppPage::Thread(ThreadPage::new())); // debug
+        self.route.push(AppPage::Group(GroupPage::new(
+            APIFetcher::new(Url::parse("https://a8786149a16a.ngrok.io/graphql").unwrap()),
+            String::from("/Universe"),
+            self.config["username"].to_string(),
+        )));
     }
 
     pub fn tick(&mut self) {
@@ -28,18 +42,17 @@ impl App {
         }
     }
 
-    pub fn update(&mut self, chr: KeyEvent) {
-        match self.get_page().unwrap() {
-            AppPage::Group(gp) => {
-                gp.update(chr);
-            }
-            AppPage::User(up) => {
-                up.update(chr);
-            }
-            AppPage::Thread(tp) => {
-                tp.update(chr);
-            }
+    pub fn update(&mut self, chr: KeyEvent) -> bool {
+        if self.route.is_empty() {
+            return false;
         }
+        let closure = match self.get_page().unwrap() {
+            AppPage::Group(gp) => gp.update(chr),
+            AppPage::User(up) => up.update(chr),
+            AppPage::Thread(tp) => tp.update(chr),
+        };
+        closure(self);
+        return !self.route.is_empty();
     }
 
     pub fn push_page(&mut self, page: AppPage) {
