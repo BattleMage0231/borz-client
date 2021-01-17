@@ -15,7 +15,7 @@ plugs:
 parts:
   borz:
     plugin: rust
-    source: https://github.com/hillcrestpaul0719/borz-client.git
+    source: https://github.com/battlemage0231/borz-client.git
 apps:
   borz:
     command: bin/borz
