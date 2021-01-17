@@ -66,11 +66,11 @@ impl ThreadPage {
             .unwrap();
         let mut authors = vec![];
         let mut content: Vec<Vec<String>> = vec![];
-        authors.push(res.author.unwrap().username);
+        authors.push(res.author.username);
         content.push(split_line_vec(res.content));
         for n in res.replies.edges {
             let node = n.unwrap().node.unwrap();
-            authors.push(node.author.unwrap().username);
+            authors.push(node.author.username);
             content.push(split_line_vec(node.content));
         }
         ThreadPage {
@@ -192,7 +192,7 @@ impl GroupPage {
             let node = thread.unwrap().node.unwrap();
             title_list.push(node.title);
             tid_list.push(node.id);
-            let aut = node.author.unwrap();
+            let aut = node.author;
             author_list.push(aut.username);
             aid_list.push(aut.id);
         }
@@ -330,12 +330,12 @@ impl UserPage {
 
     pub fn update(&mut self, key: KeyEvent) -> Box<dyn for<'a> Fn(&'a mut App)> {
         if key.modifiers.is_empty() {
+            if let KeyCode::Esc = key.code {
+                return Box::new(|app| {
+                    app.pop_page().unwrap();
+                });
+            }
             if let KeyCode::Tab = key.code {
-                if let KeyCode::Esc = key.code {
-                    return Box::new(|app| {
-                        app.pop_page().unwrap();
-                    });
-                }
                 /*
                 match self.active {
                     ActiveWidget::User => {

@@ -179,6 +179,9 @@ impl MessagesWidget {
                             self.input_buffer.push(Vec::new());
                         }
                         self.input_buffer.remove(self.selected_row);
+                        if self.input_buffer.is_empty() {
+                            self.input_buffer.push(Vec::new());
+                        }
                         if self.selected_row >= self.input_buffer.len() - 1 && self.selected_row > 0
                         {
                             self.selected_row -= 1;
@@ -186,17 +189,7 @@ impl MessagesWidget {
                         self.scroll_bottom = min(self.scroll_bottom, self.input_buffer.len());
                     }
                 }
-                KeyCode::Char(c) => {
-                    if self.editing {
-                        if c.is_ascii_alphanumeric() || c.is_ascii_punctuation() {
-                            if self.input_buffer.is_empty() {
-                                self.input_buffer.push(Vec::new());
-                            }
-                            self.input_buffer[self.selected_row].push(c);
-                        }
-                    }
-                }
-                KeyCode::End => {
+                KeyCode::Insert => {
                     let mut content = String::new();
                     for line in self.input_buffer.iter() {
                         for chr in line.iter() {
@@ -224,6 +217,16 @@ impl MessagesWidget {
                                 panic!("Wrong page execution");
                             }
                         });
+                    }
+                }
+                KeyCode::Char(c) => {
+                    if self.editing {
+                        if c.is_ascii_alphanumeric() || c.is_ascii_punctuation() {
+                            if self.input_buffer.is_empty() {
+                                self.input_buffer.push(Vec::new());
+                            }
+                            self.input_buffer[self.selected_row].push(c);
+                        }
                     }
                 }
                 _ => {}

@@ -272,7 +272,7 @@ type ReplyNode implements Node {
   content: String!
   created: DateTime!
   modified: DateTime!
-  author: BorzUserNode
+  author: BorzUserNode!
   thread: ThreadNode!
 }
 
@@ -371,7 +371,7 @@ type ThreadNode implements Node {
   content: String!
   created: DateTime!
   modified: DateTime!
-  author: BorzUserNode
+  author: BorzUserNode!
   subgroup: SubgroupNode
   replies(offset: Int, before: String, after: String, first: Int, last: Int, content: String, created: DateTime, modified: DateTime, author: ID, thread: ID): ReplyNodeConnection!
 }

@@ -107,7 +107,7 @@ impl Widget for SubgroupsWidget {
                 .iter()
                 .enumerate()
             {
-                let name = self.group.clone() + &subgroup[..];
+                let name = self.group.clone() + "/" + &subgroup[..];
                 let span = Spans::from(vec![Span::styled(
                     {
                         if name.len() > area.width as usize {

@@ -4,11 +4,13 @@ use crossterm::cursor;
 use crossterm::event::{Event, KeyCode, KeyModifiers};
 use crossterm::execute;
 use crossterm::terminal;
+use dirs::home_dir;
 use json::JsonValue;
+use lazy_static::lazy_static;
 use rpassword::read_password;
 use std::fs;
 use std::io;
-use std::path;
+use std::path::Path;
 use std::thread;
 use std::time::Duration;
 use tui::backend::CrosstermBackend;
@@ -21,12 +23,20 @@ mod args;
 mod ui;
 mod widgets;
 
+lazy_static! {
+    pub static ref HOME_DIR: String = home_dir().unwrap().into_os_string().into_string().unwrap();
+    pub static ref CONFIG_FOLDER_PATH: String = format!("{}/.config/Borz", *HOME_DIR);
+    pub static ref CONFIG_FILE_PATH: String = format!("{}/.config/Borz/config.json", *HOME_DIR);
+    pub static ref API_ENDPOINT: Url = Url::parse("https://e8ad9c5701a9.ngrok.io/graphql").unwrap();
+    pub static ref TOP_LEVEL_ID: String = String::from("U3ViZ3JvdXBOb2RlOjE=");
+}
+
 fn load_config() -> JsonValue {
-    fs::create_dir_all("~/.config/Borz/").unwrap();
-    if !path::Path::new("~/.config/Borz/config.json").is_file() {
-        fs::write("~/.config/Borz/config.json", "{}").unwrap();
+    fs::create_dir_all(CONFIG_FOLDER_PATH.clone()).unwrap();
+    if !Path::new(&CONFIG_FILE_PATH.clone()).is_file() {
+        fs::write(CONFIG_FILE_PATH.clone(), "{}").unwrap();
     }
-    let content = fs::read_to_string("~/.config/Borz/config.json").unwrap();
+    let content = fs::read_to_string(CONFIG_FILE_PATH.clone()).unwrap();
     match json::parse(&content[..]) {
         Err(_) => {
             panic!("Bad JSON")
@@ -128,8 +138,8 @@ fn main() {
         Some(name) => {
             match name {
                 "clean" => {
-                    fs::remove_file("~/.config/Borz/config.json").unwrap();
-                    fs::remove_dir("~/.config/Borz").unwrap();
+                    fs::remove_file(CONFIG_FILE_PATH.clone()).unwrap();
+                    fs::remove_dir(CONFIG_FOLDER_PATH.clone()).unwrap();
                     println!("Successfully removed all cached and config data.");
                 }
                 "login" => {
@@ -141,9 +151,8 @@ fn main() {
                         println!("Username and password cannot be empty!");
                         return;
                     }
-                    let mut fetcher = api::fetch::APIFetcher::new(
-                        Url::parse("https://a8786149a16a.ngrok.io/graphql").unwrap(),
-                    );
+                    let mut fetcher =
+                        api::fetch::APIFetcher::new(API_ENDPOINT.clone(), TOP_LEVEL_ID.clone());
                     let res = fetcher.mutate_auth(username, password);
                     let data = res.data.unwrap();
                     let token_auth = data.token_auth.unwrap();
@@ -153,12 +162,12 @@ fn main() {
                     }
                     let token = token_auth.token.unwrap();
                     let refresh_token = token_auth.refresh_token.unwrap();
-                    fs::write("~/.config/Borz/config.json", format!("{{\"token\": \"{}\", \"refresh_token\": \"{}\", \"username\": \"{}\"}}", token, refresh_token, token_auth.user.unwrap().username)).unwrap();
+                    fs::write(CONFIG_FILE_PATH.clone(), format!("{{\"token\": \"{}\", \"refresh_token\": \"{}\", \"username\": \"{}\"}}", token, refresh_token, token_auth.user.unwrap().username)).unwrap();
                     println!("You have successfully logged in!");
                 }
                 "logout" => {
-                    if path::Path::new("~/.config/Borz/config.json").is_file() {
-                        fs::write("~/.config/Borz/config.json", "{}").unwrap();
+                    if Path::new(&CONFIG_FILE_PATH.clone()).is_file() {
+                        fs::write(CONFIG_FILE_PATH.clone(), "{}").unwrap();
                     }
                     println!("Successfully logged out.");
                 }
@@ -175,9 +184,8 @@ fn main() {
                         println!("Entered passwords must match!");
                         return;
                     }
-                    let fetcher = api::fetch::APIFetcher::new(
-                        Url::parse("https://a8786149a16a.ngrok.io/graphql").unwrap(),
-                    );
+                    let fetcher =
+                        api::fetch::APIFetcher::new(API_ENDPOINT.clone(), TOP_LEVEL_ID.clone());
                     let res = fetcher.mutate_register(email, username, password);
                     if !res.data.unwrap().register.unwrap().success.unwrap() {
                         println!("Your request was rejected by the server. Please make sure you have a valid username, email, and a strong password.");
@@ -188,9 +196,8 @@ fn main() {
                 "verify" => {
                     println!("Enter the key from your email:");
                     let key = read_line();
-                    let fetcher = api::fetch::APIFetcher::new(
-                        Url::parse("https://a8786149a16a.ngrok.io/graphql").unwrap(),
-                    );
+                    let fetcher =
+                        api::fetch::APIFetcher::new(API_ENDPOINT.clone(), TOP_LEVEL_ID.clone());
                     let res = fetcher.mutate_verify(key);
                     if !res.data.unwrap().verify_account.unwrap().success.unwrap() {
                         println!("Your token was incorrect");

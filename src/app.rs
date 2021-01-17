@@ -1,9 +1,9 @@
 use crate::api::fetch::APIFetcher;
 use crate::widgets::page::{GroupPage, ThreadPage, UserPage};
+use crate::{API_ENDPOINT, TOP_LEVEL_ID};
 use clap::ArgMatches;
 use crossterm::event::KeyEvent;
 use json::JsonValue;
-use url::Url;
 
 #[derive(Debug)]
 pub enum AppPage {
@@ -30,7 +30,7 @@ impl<'a> App<'a> {
 
     pub fn start(&mut self) {
         self.route.push(AppPage::Group(GroupPage::new(
-            APIFetcher::new(Url::parse("https://a8786149a16a.ngrok.io/graphql").unwrap()),
+            APIFetcher::new(API_ENDPOINT.clone(), TOP_LEVEL_ID.clone()),
             String::from("/Universe"),
             self.config["username"].to_string(),
         )));

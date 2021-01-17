@@ -1,3 +1,4 @@
+use crate::CONFIG_FILE_PATH;
 use graphql_client::{GraphQLQuery, Response};
 use reqwest::blocking::Client;
 use reqwest::header::{HeaderMap, AUTHORIZATION};
@@ -76,7 +77,7 @@ pub struct APIFetcher {
 }
 
 impl APIFetcher {
-    pub fn new(path: Url) -> APIFetcher {
+    pub fn new(path: Url, top_id: String) -> APIFetcher {
         let client = Client::builder()
             .user_agent("borz_client/0.1.0")
             .build()
@@ -85,7 +86,7 @@ impl APIFetcher {
             path,
             client,
             token: String::new(),
-            node_id: String::from("U3ViZ3JvdXBOb2RlOjE="),
+            node_id: top_id,
         }
     }
 
@@ -140,7 +141,7 @@ impl APIFetcher {
     }
 
     pub fn mutate_refresh(&mut self) {
-        let content = fs::read_to_string("~/.config/Borz/config.json").unwrap();
+        let content = fs::read_to_string(CONFIG_FILE_PATH.clone()).unwrap();
         let json = json::parse(&content[..]).unwrap();
         let refresh = json["refresh_token"].to_string();
         let username = json["username"].to_string();
@@ -162,7 +163,7 @@ impl APIFetcher {
         self.token = rt.token.unwrap();
         let refresh_token = rt.refresh_token.unwrap();
         fs::write(
-            "~/.config/Borz/config.json",
+            CONFIG_FILE_PATH.clone(),
             format!(
                 "{{\"token\": \"{}\", \"refresh_token\": \"{}\", \"username\": \"{}\"}}",
                 self.token, refresh_token, username
