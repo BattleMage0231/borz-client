@@ -6,7 +6,7 @@ description: |
   which involves a new type of groups for better representation of the
   world that we live in.
 confinement: strict
-base: core18
+base: core20
 plugs:
   borz-config:
     interface: personal-files
@@ -15,7 +15,7 @@ plugs:
 parts:
   borz:
     plugin: rust
-    source: https://github.com/BattleMage0231/borz-client
+    source: https://github.com/hillcrestpaul0719/borz-client.git
 apps:
   borz:
     command: bin/borz
