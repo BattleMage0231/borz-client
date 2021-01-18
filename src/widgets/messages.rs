@@ -131,8 +131,12 @@ impl MessagesWidget {
                         return Box::new(|_| {});
                     }
                     if self.editing {
+                        if self.input_buffer.is_empty() {
+                            self.input_buffer.push(Vec::new());
+                        }
                         self.editing = false;
                         self.selected_message = self.messages.len() - 1;
+                        self.selected_row = 0;
                         self.scroll_top = 0;
                         self.scroll_bottom = 0;
                     } else {
@@ -161,6 +165,9 @@ impl MessagesWidget {
                 }
                 KeyCode::Enter => {
                     if self.editing {
+                        if self.input_buffer.is_empty() {
+                            self.input_buffer.push(Vec::new());
+                        }
                         if self.selected_row == self.input_buffer.len() - 1 {
                             self.input_buffer.push(Vec::new());
                             self.selected_row += 1;

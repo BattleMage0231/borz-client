@@ -1,3 +1,5 @@
+#![allow(warnings)]
+
 use crossterm::event::KeyEvent;
 use tui::buffer::Buffer;
 use tui::layout::Rect;
