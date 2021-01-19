@@ -27,7 +27,7 @@ impl LocationWidget {
         self.focused = false;
     }
 
-    pub fn update(&mut self, key: KeyEvent) -> Box<dyn for<'a> Fn(&'a mut App)> {
+    pub fn update(&mut self, _key: KeyEvent) -> Box<dyn for<'a> Fn(&'a mut App)> {
         Box::new(|_| {})
     }
 }

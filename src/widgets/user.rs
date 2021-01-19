@@ -26,11 +26,13 @@ impl UserWidget {
         self.focused = true;
     }
 
+    // although this function is never called, it may be used in the future
+    #[allow(dead_code)]
     pub fn unfocus(&mut self) {
         self.focused = false;
     }
 
-    pub fn update(&mut self, key: KeyEvent) -> Box<dyn for<'a> Fn(&'a mut App)> {
+    pub fn update(&mut self, _key: KeyEvent) -> Box<dyn for<'a> Fn(&'a mut App)> {
         return Box::new(|_| {});
     }
 }

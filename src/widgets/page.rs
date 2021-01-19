@@ -241,7 +241,7 @@ impl GroupPage {
                 });
             } else if let KeyCode::Home = key.code {
                 return Box::new(|app| {
-                    if let AppPage::Group(gp) = app.get_page().unwrap() {
+                    if let AppPage::Group(_gp) = app.get_page().unwrap() {
                         /* Creating a new thread is not yet implemented
                         app.push_page(AppPage::Thread(ThreadPage::new(
                             gp.fetcher.clone(),
@@ -361,7 +361,7 @@ impl UserPage {
         };
     }
 
-    pub fn resize(&mut self, area: &Rect) {}
+    pub fn resize(&mut self, _area: &Rect) {}
 }
 
 impl Widget for UserPage {
