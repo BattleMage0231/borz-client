@@ -1,5 +1,5 @@
 [package]
-name = "borz_client"
+name = "borz"
 version = "0.1.0"
 authors = ["Leyang Zou <leyang.zou@student.tdsb.on.ca>"]
 edition = "2018"
