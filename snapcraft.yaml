@@ -5,6 +5,7 @@ description: |
   borz is a command line client for the Borz social networking platform,
   which involves a new type of groups for better representation of the
   world that we live in.
+grade: stable
 confinement: strict
 base: core20
 plugs:
@@ -12,12 +13,21 @@ plugs:
     interface: personal-files
     write:
     - $HOME/.config/Borz
+  borz-network:
+    interface: network
 parts:
   borz:
     plugin: rust
     source: https://github.com/battlemage0231/borz-client.git
+    build-packages:
+    - pkg-config
+    - libssl-dev
+    stage-packages:
+    - pkg-config
+    - libssl-dev
 apps:
   borz:
-    command: bin/borz
+    command: bin/borz_client
     plugs:
     - borz-config
+    - borz-network
